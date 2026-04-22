@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Team Picker">
+<meta name="theme-color" content="#0a0e1a">
+<title>Volleyball Team Picker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0a0e1a;
+    --bg-2: #0f1424;
+    --surface: #161c33;
+    --surface-2: #1e2642;
+    --line: #2a3458;
+    --text: #f4f1e8;
+    --muted: #8892b8;
+    --accent: #ffcf3a;
+    --team-a: #ff5e57;
+    --team-b: #3aa5ff;
+    --success: #4ade80;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255, 207, 58, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(58, 165, 255, 0.06), transparent),
+      var(--bg);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .app {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 20px 18px 40px;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-top: 8px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--accent);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(255, 207, 58, 0.3);
+  }
+
+  .logo-mark::before, .logo-mark::after {
+    content: '';
+    position: absolute;
+    background: var(--bg);
+  }
+  .logo-mark::before {
+    width: 100%; height: 1.5px;
+    top: 50%; left: 0;
+    transform: rotate(25deg);
+    transform-origin: center;
+  }
+  .logo-mark::after {
+    width: 100%; height: 1.5px;
+    top: 50%; left: 0;
+    transform: rotate(-25deg);
+  }
+
+  .logo-text {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+  .logo-text small {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-top: 3px;
+  }
+
+  .step-indicator {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-align: right;
+  }
+  .step-indicator strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px 18px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .section-title {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+
+  /* ROSTER INPUT */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .input {
+    flex: 1;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 13px 14px;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input:focus { border-color: var(--accent); }
+  .input::placeholder { color: var(--muted); font-weight: 500; }
+
+  .btn {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #1a1408;
+  }
+  .btn-ghost {
+    background: var(--surface-2);
+    color: var(--text);
+  }
+  .btn-full { width: 100%; padding: 15px; font-size: 15px; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* PLAYER LIST */
+  .player-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    max-height: 280px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .player-list:empty::before {
+    content: 'No players yet. Add some above ↑';
+    display: block;
+    text-align: center;
+    padding: 24px 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  .player-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    animation: slideIn 0.25s ease-out;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .player-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 22px;
+  }
+  .player-name {
+    flex: 1;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .player-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+  .player-remove:active { color: var(--team-a); }
+
+  .count-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .count-pill strong { color: var(--text); font-weight: 600; }
+
+  /* CAPTAINS */
+  .captain-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .captain-card {
+    background: var(--bg-2);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .captain-card.selected-a { border-color: var(--team-a); background: rgba(255, 94, 87, 0.08); }
+  .captain-card.selected-b { border-color: var(--team-b); background: rgba(58, 165, 255, 0.08); }
+  .captain-card.disabled { opacity: 0.35; pointer-events: none; }
+
+  .captain-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-bottom: 4px;
+  }
+  .captain-name {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    word-break: break-word;
+  }
+
+  .captain-pick-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .pick-btn {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 12px;
+    border-radius: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .pick-btn:active { transform: scale(0.96); }
+  .pick-btn:hover { border-color: var(--accent); }
+
+  /* DRAFT */
+  .draft-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .whose-turn {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+  }
+  .whose-turn .turn-team-a { color: var(--team-a); }
+  .whose-turn .turn-team-b { color: var(--team-b); }
+
+  .remaining-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+  }
+
+  .available-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .avail-btn {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 14px 10px;
+    border-radius: 10px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    word-break: break-word;
+  }
+  .avail-btn:active { transform: scale(0.96); }
+  .avail-btn.hover-a { border-color: var(--team-a); background: rgba(255, 94, 87, 0.1); }
+  .avail-btn.hover-b { border-color: var(--team-b); background: rgba(58, 165, 255, 0.1); }
+
+  /* TEAMS DISPLAY */
+  .teams-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .team-col {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 12px;
+  }
+  .team-col.team-a { border-top: 3px solid var(--team-a); }
+  .team-col.team-b { border-top: 3px solid var(--team-b); }
+
+  .team-head {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 14px;
+    letter-spacing: -0.01em;
+    margin-bottom: 3px;
+  }
+  .team-col.team-a .team-head { color: var(--team-a); }
+  .team-col.team-b .team-head { color: var(--team-b); }
+
+  .team-captain-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--line);
+  }
+
+  .team-player {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .team-player.is-captain { font-weight: 800; }
+  .team-player .dot {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    min-width: 14px;
+  }
+  .team-player .star {
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  /* FINAL */
+  .final-banner {
+    background: linear-gradient(135deg, rgba(255, 207, 58, 0.15), rgba(255, 207, 58, 0.02));
+    border: 1px solid rgba(255, 207, 58, 0.3);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .final-banner .big {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .final-banner .small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* UTIL */
+  .hidden { display: none !important; }
+
+  .footnote {
+    text-align: center;
+    color: var(--muted);
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.15em;
+    margin-top: 20px;
+  }
+
+  /* iOS install hint */
+  .install-hint {
+    background: var(--surface-2);
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .install-hint strong { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      <div class="logo-text">
+        SIDE OUT
+        <small>TEAM PICKER</small>
+      </div>
+    </div>
+    <div class="step-indicator">STEP <strong id="stepNum">01</strong> / 04</div>
+  </div>
+
+  <!-- STEP 1: ROSTER -->
+  <div class="card" id="step-roster">
+    <div class="section-title">Roster</div>
+    <div class="section-sub">Add everyone who's playing today.</div>
+
+    <div class="input-row">
+      <input type="text" class="input" id="nameInput" placeholder="Player name" autocomplete="off" maxlength="20">
+      <button class="btn btn-primary" id="addBtn">Add</button>
+    </div>
+
+    <div class="count-pill"><span>●</span> <strong id="playerCount">0</strong> players</div>
+
+    <div class="player-list" id="playerList"></div>
+
+    <button class="btn btn-primary btn-full" id="toCaptainsBtn" disabled>Pick Captains →</button>
+  </div>
+
+  <!-- STEP 2: CAPTAINS -->
+  <div class="card hidden" id="step-captains">
+    <div class="section-title">Captains</div>
+    <div class="section-sub">Tap a player for Team A, then another for Team B.</div>
+
+    <div class="captain-grid">
+      <div class="captain-card" id="capAPreview">
+        <div class="captain-label">TEAM A</div>
+        <div class="captain-name" id="capAName">—</div>
+      </div>
+      <div class="captain-card" id="capBPreview">
+        <div class="captain-label">TEAM B</div>
+        <div class="captain-name" id="capBName">—</div>
+      </div>
+    </div>
+
+    <div class="captain-pick-list" id="captainOptions"></div>
+
+    <div class="button-row">
+      <button class="btn btn-ghost" id="backToRosterBtn">← Back</button>
+      <button class="btn btn-primary" id="startDraftBtn" disabled>Start Draft →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: DRAFT -->
+  <div class="card hidden" id="step-draft">
+    <div class="draft-header">
+      <div class="whose-turn" id="whoseTurn">Team A picks</div>
+      <div class="remaining-count"><span id="remainingCount">0</span> LEFT</div>
+    </div>
+
+    <div class="available-grid" id="availableList"></div>
+
+    <div class="teams-wrap">
+      <div class="team-col team-a">
+        <div class="team-head" id="teamAName">Team A</div>
+        <div class="team-captain-line">CAPTAIN</div>
+        <div id="teamAList"></div>
+      </div>
+      <div class="team-col team-b">
+        <div class="team-head" id="teamBName">Team B</div>
+        <div class="team-captain-line">CAPTAIN</div>
+        <div id="teamBList"></div>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button class="btn btn-ghost" id="resetDraftBtn">↺ Restart</button>
+      <button class="btn btn-primary hidden" id="toFinalBtn">Done →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: FINAL -->
+  <div class="card hidden" id="step-final">
+    <div class="final-banner">
+      <div class="big">🏐 Teams Are Set</div>
+      <div class="small">Let's play some volleyball.</div>
+    </div>
+
+    <div class="teams-wrap">
+      <div class="team-col team-a">
+        <div class="team-head" id="finalAName">Team A</div>
+        <div class="team-captain-line">FINAL ROSTER</div>
+        <div id="finalAList"></div>
+      </div>
+      <div class="team-col team-b">
+        <div class="team-head" id="finalBName">Team B</div>
+        <div class="team-captain-line">FINAL ROSTER</div>
+        <div id="finalBList"></div>
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button class="btn btn-ghost" id="newGameBtn">↺ New Game</button>
+      <button class="btn btn-primary" id="shareBtn">Share</button>
+    </div>
+  </div>
+
+  <div class="footnote">TAP · ADD · DRAFT · PLAY</div>
+</div>
+
+<script>
+  // ---------- STATE ----------
+  let players = [];           // [{id, name}]
+  let captainA = null;        // id
+  let captainB = null;        // id
+  let teamA = [];             // [id]
+  let teamB = [];             // [id]
+  let turn = 'A';             // whose pick
+
+  // ---------- HELPERS ----------
+  const $ = id => document.getElementById(id);
+  const nameOf = id => (players.find(p => p.id === id) || {}).name || '—';
+
+  function setStep(n) {
+    $('stepNum').textContent = String(n).padStart(2, '0');
+    ['step-roster','step-captains','step-draft','step-final'].forEach((s, i) => {
+      $(s).classList.toggle('hidden', (i+1) !== n);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ---------- STEP 1: ROSTER ----------
+  function addPlayer() {
+    const input = $('nameInput');
+    const name = input.value.trim();
+    if (!name) return;
+    if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+      input.value = '';
+      input.placeholder = 'Already added!';
+      setTimeout(() => { input.placeholder = 'Player name'; }, 1200);
+      return;
+    }
+    players.push({ id: Date.now() + Math.random(), name });
+    input.value = '';
+    input.focus();
+    renderRoster();
+  }
+
+  function removePlayer(id) {
+    players = players.filter(p => p.id !== id);
+    renderRoster();
+  }
+
+  function renderRoster() {
+    const list = $('playerList');
+    list.innerHTML = '';
+    players.forEach((p, i) => {
+      const chip = document.createElement('div');
+      chip.className = 'player-chip';
+      chip.innerHTML = `
+        <div class="player-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="player-name"></div>
+        <button class="player-remove" aria-label="Remove">×</button>
+      `;
+      chip.querySelector('.player-name').textContent = p.name;
+      chip.querySelector('.player-remove').onclick = () => removePlayer(p.id);
+      list.appendChild(chip);
+    });
+    $('playerCount').textContent = players.length;
+    $('toCaptainsBtn').disabled = players.length < 4;
+    $('toCaptainsBtn').textContent = players.length < 4
+      ? `Need ${4 - players.length} more →`
+      : 'Pick Captains →';
+  }
+
+  $('addBtn').onclick = addPlayer;
+  $('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') addPlayer(); });
+
+  $('toCaptainsBtn').onclick = () => {
+    captainA = null; captainB = null;
+    renderCaptainOptions();
+    updateCaptainPreviews();
+    setStep(2);
+  };
+
+  // ---------- STEP 2: CAPTAINS ----------
+  function renderCaptainOptions() {
+    const box = $('captainOptions');
+    box.innerHTML = '';
+    players.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'pick-btn';
+      btn.textContent = p.name;
+      if (p.id === captainA) btn.classList.add('hover-a');
+      if (p.id === captainB) btn.classList.add('hover-b');
+      btn.onclick = () => pickCaptain(p.id);
+      box.appendChild(btn);
+    });
+  }
+
+  function pickCaptain(id) {
+    if (captainA === id) { captainA = null; }
+    else if (captainB === id) { captainB = null; }
+    else if (!captainA) { captainA = id; }
+    else if (!captainB) { captainB = id; }
+    else { captainB = id; } // overwrite B
+    renderCaptainOptions();
+    updateCaptainPreviews();
+  }
+
+  function updateCaptainPreviews() {
+    $('capAName').textContent = captainA ? nameOf(captainA) : '—';
+    $('capBName').textContent = captainB ? nameOf(captainB) : '—';
+    $('capAPreview').classList.toggle('selected-a', !!captainA);
+    $('capBPreview').classList.toggle('selected-b', !!captainB);
+    $('startDraftBtn').disabled = !(captainA && captainB);
+  }
+
+  $('backToRosterBtn').onclick = () => setStep(1);
+
+  $('startDraftBtn').onclick = () => {
+    teamA = [captainA];
+    teamB = [captainB];
+    turn = 'A';
+    renderDraft();
+    setStep(3);
+  };
+
+  // ---------- STEP 3: DRAFT ----------
+  function renderDraft() {
+    const drafted = new Set([...teamA, ...teamB]);
+    const available = players.filter(p => !drafted.has(p.id));
+
+    // Available list
+    const avail = $('availableList');
+    avail.innerHTML = '';
+    available.forEach(p => {
+      const btn = document.createElement('button');
+      btn.className = 'avail-btn ' + (turn === 'A' ? 'hover-a' : 'hover-b');
+      btn.textContent = p.name;
+      btn.onclick = () => draftPlayer(p.id);
+      avail.appendChild(btn);
+    });
+
+    // Turn indicator
+    $('whoseTurn').innerHTML = turn === 'A'
+      ? `<span class="turn-team-a">${nameOf(captainA).split(' ')[0]}'s</span> pick`
+      : `<span class="turn-team-b">${nameOf(captainB).split(' ')[0]}'s</span> pick`;
+    $('remainingCount').textContent = available.length;
+
+    // Team rosters
+    $('teamAName').textContent = `${nameOf(captainA).split(' ')[0]}'s Team`;
+    $('teamBName').textContent = `${nameOf(captainB).split(' ')[0]}'s Team`;
+    renderTeamList('teamAList', teamA, captainA);
+    renderTeamList('teamBList', teamB, captainB);
+
+    // Show done button if everyone drafted
+    $('toFinalBtn').classList.toggle('hidden', available.length > 0);
+  }
+
+  function renderTeamList(elId, ids, capId) {
+    const el = $(elId);
+    el.innerHTML = '';
+    ids.forEach((id, i) => {
+      const row = document.createElement('div');
+      row.className = 'team-player' + (id === capId ? ' is-captain' : '');
+      row.innerHTML = `
+        <span class="dot">${String(i+1).padStart(2,'0')}</span>
+        <span class="pname"></span>
+        ${id === capId ? '<span class="star">★</span>' : ''}
+      `;
+      row.querySelector('.pname').textContent = nameOf(id);
+      el.appendChild(row);
+    });
+  }
+
+  function draftPlayer(id) {
+    if (turn === 'A') { teamA.push(id); turn = 'B'; }
+    else { teamB.push(id); turn = 'A'; }
+    renderDraft();
+  }
+
+  $('resetDraftBtn').onclick = () => {
+    if (confirm('Restart the draft? Captains stay, picks reset.')) {
+      teamA = [captainA]; teamB = [captainB]; turn = 'A';
+      renderDraft();
+    }
+  };
+
+  $('toFinalBtn').onclick = () => {
+    $('finalAName').textContent = `${nameOf(captainA).split(' ')[0]}'s Team`;
+    $('finalBName').textContent = `${nameOf(captainB).split(' ')[0]}'s Team`;
+    renderTeamList('finalAList', teamA, captainA);
+    renderTeamList('finalBList', teamB, captainB);
+    setStep(4);
+  };
+
+  // ---------- STEP 4: FINAL ----------
+  $('newGameBtn').onclick = () => {
+    if (confirm('Start over with a new roster?')) {
+      players = []; captainA = null; captainB = null;
+      teamA = []; teamB = []; turn = 'A';
+      renderRoster();
+      setStep(1);
+    }
+  };
+
+  $('shareBtn').onclick = async () => {
+    const text = `🏐 VOLLEYBALL TEAMS\n\n` +
+      `${nameOf(captainA)}'s Team:\n` +
+      teamA.map((id, i) => `${i+1}. ${nameOf(id)}${id === captainA ? ' ★' : ''}`).join('\n') +
+      `\n\n${nameOf(captainB)}'s Team:\n` +
+      teamB.map((id, i) => `${i+1}. ${nameOf(id)}${id === captainB ? ' ★' : ''}`).join('\n');
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Volleyball Teams', text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        $('shareBtn').textContent = 'Copied!';
+        setTimeout(() => { $('shareBtn').textContent = 'Share'; }, 1500);
+      }
+    } catch (e) { /* user cancelled */ }
+  };
+
+  // init
+  renderRoster();
+  $('nameInput').focus();
+</script>
+</body>
+</html>
